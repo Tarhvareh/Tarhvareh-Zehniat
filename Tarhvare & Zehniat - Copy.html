@@ -1,0 +1,1461 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <title>طرحواره و ذهنیت</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: Vazirmatn, "IRANSans", "Segoe UI", Tahoma, sans-serif;
+      line-height: 1.6;
+      color: #111;
+      --surface: #fff;
+      --muted: #555;
+      --stroke: #d7d7d7;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 32px 16px 48px;
+      display: flex;
+      justify-content: center;
+      background: #f4f4f4;
+      color: #111;
+    }
+
+    .app-shell {
+      width: min(1280px, 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    section {
+      background: var(--surface);
+      border-radius: 16px;
+      border: 1px solid var(--stroke);
+      padding: 24px;
+    }
+
+    #results-view {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+      direction: rtl;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .page-title h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #111;
+    }
+
+    .progress-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .progress-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: #e5e5e5;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      display: block;
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: #111;
+      transition: width 180ms ease;
+    }
+
+    .questions-container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      direction: rtl;
+    }
+
+    .entry {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px;
+      border-bottom: 1px solid #ececec;
+      background: #fafafa;
+      border-radius: 8px;
+    }
+
+    .entry:last-child {
+      border-bottom: none;
+    }
+
+    .question-text {
+      font-weight: 600;
+      color: #111;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+      line-height: 1.6;
+    }
+
+    .question-number {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .options-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      direction: rtl;
+      margin-top: 8px;
+    }
+
+    .option-btn {
+      flex: 1;
+      min-width: 100px;
+      padding: 10px 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: #fff;
+      color: #333;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 150ms ease;
+      text-align: center;
+    }
+
+    .option-btn:hover {
+      border-color: #111;
+      background: #f5f5f5;
+    }
+
+    .option-btn.selected {
+      background: #111;
+      color: #fff;
+      border-color: #111;
+    }
+
+    .entry.error {
+      border: 2px solid #f97316;
+      background: #fff5f0;
+    }
+
+    .actions {
+      margin-top: 24px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    button {
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 120ms ease;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    button:active {
+      opacity: 0.7;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    button.secondary {
+      background: #333;
+    }
+
+    .results-header {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .results-header h2 {
+      margin: 0;
+      font-size: 1.7rem;
+      color: #111;
+    }
+
+    .results-header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .results-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .result-row {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid var(--stroke);
+      padding: 18px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 24px;
+      direction: rtl;
+      flex-wrap: wrap;
+    }
+
+    .category-label {
+      font-weight: 700;
+      color: #111;
+      white-space: nowrap;
+      min-width: 240px;
+      text-align: right;
+    }
+
+    .numbers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px 18px;
+      direction: rtl;
+      flex: 1;
+    }
+
+    .number-cell {
+      min-width: 54px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .answer {
+      font-weight: 600;
+      color: #000;
+      font-size: 1rem;
+    }
+
+    .number {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    @media (max-width: 1024px) {
+      .questions-container {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 640px) {
+      section {
+        padding: 24px;
+      }
+
+      .category-label {
+        min-width: auto;
+      }
+
+      .options-group {
+        flex-direction: column;
+      }
+
+      .option-btn {
+        width: 100%;
+        min-width: auto;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <section id="code-gate">
+      <div class="page-title">
+        <h1>طرحواره و ذهنیت</h1>
+        <p style="color: #555; font-size: 0.9rem">
+          برای شروع تست، کد اختصاصی خود را وارد کنید.
+        </p>
+      </div>
+      <div
+        style="
+          max-width: 400px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        "
+      >
+        <label for="code-input" style="font-size: 0.9rem; color: #333"
+          >کد تست</label
+        >
+        <input
+          id="code-input"
+          type="text"
+          placeholder="مثلاً: HZ-1403-001"
+          style="
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 0.95rem;
+            direction: ltr;
+          "
+        />
+        <div
+          id="code-error"
+          style="color: #dc2626; font-size: 0.85rem; min-height: 1.2em"
+        ></div>
+        <button type="button" id="code-start-btn">شروع تست</button>
+      </div>
+    </section>
+
+    <section id="form-view" hidden>
+      <div class="page-title">
+        <h1>طرحواره و ذهنیت</h1>
+      </div>
+
+      <div class="progress-panel">
+        <div class="progress-top">
+          <span id="progress-status">در حال تکمیل</span>
+          <span id="progress-value">۰ / ۱۲۴</span>
+        </div>
+        <div class="progress-bar">
+          <span class="progress-fill" id="progress-fill"></span>
+        </div>
+      </div>
+
+      <div class="questions-container" id="questions-container"></div>
+
+      <div class="actions">
+        <button type="button" id="submit-btn">ثبت تست</button>
+      </div>
+    </section>
+
+    <section id="admin-view" hidden>
+      <div id="admin-login-box">
+        <div
+          style="
+            max-width: 360px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          "
+        >
+          <label for="admin-password" style="font-size: 0.9rem; color: #333"
+            >رمز عبور ادمین</label
+          >
+          <input
+            id="admin-password"
+            type="password"
+            placeholder="رمز عبور"
+            style="
+              padding: 10px 12px;
+              border-radius: 8px;
+              border: 1px solid #ccc;
+              font-size: 0.95rem;
+            "
+          />
+          <div
+            id="admin-login-error"
+            style="color: #dc2626; font-size: 0.85rem; min-height: 1.2em"
+          ></div>
+          <button type="button" id="admin-login-btn">ورود به پنل</button>
+      </div>
+      </div>
+
+      <div
+        id="admin-content"
+        hidden
+        style="display: flex; flex-direction: column; gap: 24px; margin-top: 24px"
+      >
+        <div class="results-header" style="margin-bottom: 8px">
+          <h2>پنل ادمین</h2>
+          <p>مدیریت کدها و مشاهده نتایج تست‌ها</p>
+        </div>
+
+        <section class="admin-section">
+          <h3 style="margin-top: 0">ساخت کد جدید</h3>
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <div
+              style="
+                display: grid;
+                grid-template-columns: minmax(220px, 1fr) auto;
+                gap: 12px;
+                align-items: end;
+              "
+            >
+              <div style="display:flex; flex-direction:column; gap:6px; flex:1; min-width:220px;">
+                <label for="single-code-client-name" style="font-size:0.85rem;"
+                  >نام مراجع (اختیاری)</label
+                >
+                <input
+                  id="single-code-client-name"
+                  type="text"
+                  placeholder="مثلاً: علی رضایی"
+                  style="
+                    width: 100%;
+                    padding: 10px 12px;
+                    border-radius: 8px;
+                    border: 1px solid #ccc;
+                    font-size: 0.95rem;
+                  "
+                />
+              </div>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <span style="font-size:0.85rem; color:#444;">&nbsp;</span>
+                <button type="button" id="generate-single-code-btn">
+                  ساخت یک کد تصادفی
+                </button>
+              </div>
+            </div>
+            <div
+              id="single-code-feedback"
+              style="font-size: 0.9rem; color: #15803d"
+            ></div>
+            <div
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+                align-items: center;
+              "
+            >
+              <label for="new-code-count" style="font-size: 0.9rem"
+                >تعداد کد (تصادفی)</label
+              >
+              <input
+                id="new-code-count"
+                type="number"
+                min="1"
+                max="100"
+                value="5"
+                style="
+                  width: 80px;
+                  padding: 6px 8px;
+                  border-radius: 8px;
+                  border: 1px solid #ccc;
+                  font-size: 0.9rem;
+                "
+              />
+              <button type="button" id="generate-codes-btn">
+                ساخت چند کد تصادفی
+              </button>
+            </div>
+            <div
+              id="generated-codes-list"
+              style="font-size: 0.9rem; color: #111"
+            ></div>
+      </div>
+    </section>
+
+        <section class="admin-section">
+          <h3 style="margin-top: 0">ثبت کد دستی</h3>
+          <div
+            style="
+              display: flex;
+              flex-wrap: wrap;
+              gap: 12px;
+              align-items: center;
+            "
+          >
+            <input
+              id="manual-code-input"
+              type="text"
+              placeholder="کد؛ مثلاً: HZ-1403-001"
+              style="
+                flex: 1;
+                min-width: 220px;
+                padding: 8px 10px;
+                border-radius: 8px;
+                border: 1px solid #ccc;
+                font-size: 0.95rem;
+                direction: ltr;
+              "
+            />
+            <input
+              id="manual-code-client-name"
+              type="text"
+              placeholder="نام مراجع (اختیاری)"
+              style="
+                flex: 1;
+                min-width: 220px;
+                padding: 8px 10px;
+                border-radius: 8px;
+                border: 1px solid #ccc;
+                font-size: 0.95rem;
+              "
+            />
+            <button type="button" id="add-manual-code-btn">افزودن کد</button>
+  </div>
+          <div
+            id="manual-code-feedback"
+            style="margin-top: 8px; font-size: 0.9rem"
+          ></div>
+        </section>
+
+        <section class="admin-section">
+          <h3 style="margin-top: 0">لیست کدها</h3>
+          <div id="codes-table" style="overflow-x: auto; font-size: 0.9rem"></div>
+        </section>
+
+        <section class="admin-section">
+          <h3 style="margin-top: 0">لیست تست‌ها</h3>
+          <div id="tests-table" style="overflow-x: auto; font-size: 0.9rem"></div>
+        </section>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script>
+    const TOTAL_NUMBERS = 124;
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAeAhMksJlSd3e0XVBgvUGW-xOd8WvNf0s",
+      authDomain: "tarhvareh-6ae41.firebaseapp.com",
+      projectId: "tarhvareh-6ae41",
+      storageBucket: "tarhvareh-6ae41.firebasestorage.app",
+      messagingSenderId: "219789393992",
+      appId: "1:219789393992:web:634b54b43cb1bfae5a587d",
+      measurementId: "G-YMVZ5MJ3J5",
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const codesCollection = db.collection("codes");
+    const testsCollection = db.collection("tests");
+    const serverTimestamp = firebase.firestore.FieldValue.serverTimestamp;
+
+    // عناصر نمای کاربر
+    const codeGate = document.getElementById("code-gate");
+    const codeInput = document.getElementById("code-input");
+    const codeError = document.getElementById("code-error");
+    const codeStartBtn = document.getElementById("code-start-btn");
+
+    const formView = document.getElementById("form-view");
+    const questionsContainer = document.getElementById("questions-container");
+    const submitBtn = document.getElementById("submit-btn");
+    const progressStatus = document.getElementById("progress-status");
+    const progressValue = document.getElementById("progress-value");
+    const progressFill = document.getElementById("progress-fill");
+
+    // عناصر پنل ادمین
+    const adminView = document.getElementById("admin-view");
+    const adminLoginBox = document.getElementById("admin-login-box");
+    const adminPasswordInput = document.getElementById("admin-password");
+    const adminLoginBtn = document.getElementById("admin-login-btn");
+    const adminLoginError = document.getElementById("admin-login-error");
+    const adminContent = document.getElementById("admin-content");
+    const singleCodeClientInput = document.getElementById("single-code-client-name");
+    const generateSingleCodeBtn = document.getElementById("generate-single-code-btn");
+    const singleCodeFeedback = document.getElementById("single-code-feedback");
+    const newCodeCountInput = document.getElementById("new-code-count");
+    const generateCodesBtn = document.getElementById("generate-codes-btn");
+    const generatedCodesList = document.getElementById("generated-codes-list");
+    const manualCodeInput = document.getElementById("manual-code-input");
+    const manualCodeClientInput = document.getElementById("manual-code-client-name");
+    const addManualCodeBtn = document.getElementById("add-manual-code-btn");
+    const manualCodeFeedback = document.getElementById("manual-code-feedback");
+    const codesTable = document.getElementById("codes-table");
+    const testsTable = document.getElementById("tests-table");
+
+    const ADMIN_PASSWORD = "hassan7771"; // حتماً بعداً تغییر داده شود
+    const normalizeCode = (value) => String(value || "").trim().toUpperCase();
+    const formatTimestamp = (value) => {
+      if (!value) return "-";
+      if (typeof value.toDate === "function") {
+        return value.toDate().toLocaleString("fa-IR");
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "-";
+      return date.toLocaleString("fa-IR");
+    };
+
+    let codes = [];
+    let tests = [];
+
+    let activeCode = null;
+    let isAdminAuthenticated = false;
+    const questionEntries = [];
+
+    const fetchCodes = async () => {
+      const snapshot = await codesCollection.orderBy("createdAt", "asc").get();
+      codes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    };
+
+    const fetchTests = async () => {
+      const snapshot = await testsCollection.orderBy("createdAt", "desc").get();
+      tests = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    };
+
+    const refreshAdminData = async () => {
+      await Promise.all([fetchCodes(), fetchTests()]);
+      renderCodesTable();
+      renderTestsTable();
+    };
+
+    const getCodeByValue = async (value) => {
+      const normalized = normalizeCode(value);
+      if (!normalized) return null;
+      const cached = codes.find((c) => c.code === normalized);
+      if (cached) return cached;
+      const snapshot = await codesCollection.where("code", "==", normalized).limit(1).get();
+      if (snapshot.empty) return null;
+      const doc = snapshot.docs[0];
+      return { id: doc.id, ...doc.data() };
+    };
+
+    const insertCodeRecordAsync = async (rawCode, clientName) => {
+      const normalized = normalizeCode(rawCode);
+      if (!normalized) {
+        throw new Error("کد خالی است.");
+      }
+      if (!/^[A-Z0-9-]+$/.test(normalized)) {
+        throw new Error("کد باید فقط شامل حروف انگلیسی، اعداد و خط تیره باشد.");
+      }
+      const existing = await getCodeByValue(normalized);
+      if (existing) {
+        throw new Error("این کد قبلاً ثبت شده است.");
+      }
+      const docRef = await codesCollection.add({
+        code: normalized,
+        used: false,
+        createdAt: serverTimestamp(),
+        clientName: (clientName || "").trim(),
+      });
+      return { id: docRef.id, code: normalized };
+    };
+
+    const generateRandomCodesAsync = async (count) => {
+      const newCodes = [];
+      while (newCodes.length < count) {
+        try {
+          const record = await insertCodeRecordAsync(randomCode());
+          newCodes.push(record);
+        } catch (err) {
+          if (err.message.includes("قبلاً")) {
+            continue;
+          }
+          throw err;
+        }
+      }
+      return newCodes;
+    };
+
+    const markCodeAsUsed = async (codeRecord) => {
+      if (!codeRecord) return;
+      let docId = codeRecord.id;
+      if (!docId) {
+        const fetched = await getCodeByValue(codeRecord.code);
+        docId = fetched?.id;
+      }
+      if (!docId) return;
+      await codesCollection.doc(docId).update({
+        used: true,
+        usedAt: serverTimestamp(),
+      });
+    };
+
+    const deleteCodeAndTests = async (codeValue) => {
+      const codeRecord = await getCodeByValue(codeValue);
+      if (codeRecord?.id) {
+        await codesCollection.doc(codeRecord.id).delete();
+      }
+      const relatedTests = await testsCollection.where("code", "==", codeValue).get();
+      if (!relatedTests.empty) {
+        const batch = db.batch();
+        relatedTests.docs.forEach((doc) => batch.delete(doc.ref));
+        await batch.commit();
+      }
+    };
+
+    // اطمینان از این‌که محتوای پنل تا قبل از ورود، نمایش داده نمی‌شود
+    if (adminContent) {
+      adminContent.hidden = true;
+      adminContent.style.display = "none";
+    }
+
+    // سوالات
+    const QUESTIONS = [
+      "دیگران باید به من احترام بگذارند و در عین حال حق ندارند به من امر و نهی کنند.",
+      "احساس می‌کنم دیگران مرا قبول دارند و می‌پذیرند.",
+      "خودم را لایق لذت نمی‌دانم.",
+      "احساس می‌کنم که اساساً آدم بی‌کفایت، نالایق و بی‌ارزشی هستم.",
+      "برای تنبیه خودم، تکانه‌های آسیب‌زایی دارم (مثل جراحت وارد کردن به خودم).",
+      "احساس سرگشتگی می‌کنم.",
+      "برای من سخت است که شخصیت واقعی‌ام را نشان بدهم.",
+      "سخت تلاش می‌کنم برای جلوگیری از تعارض، جروبحث یا طرد شدن، مردم‌دار باشم.",
+      "نمی‌توانم خودم را ببخشم.",
+      "دست به کارهایی می‌زنم تا محور توجه دیگران قرار بگیرم.",
+      "وقتی دیگران به خواسته‌های من بی‌توجهی می‌کنند، عصبی می‌شوم.",
+      "در کنترل تکانه‌هایم مشکل دارم.",
+      "اگر به هدفم نرسم، به‌راحتی ناکام می‌شوم و دست از کار می‌کشم.",
+      "خشم و غیظ شدیدی دارم.",
+      "تکانشی رفتار می‌کنم یا سریع هیجان‌هایم را بروز می‌دهم به نحوی که موجب آزردگی خاطر دیگران یا آشفتگی خاطر خودم می‌شود.",
+      "اگر اتفاقات بدی رخ می‌دهد، به دلیل عیب و ایرادهای من است.",
+      "احساس آرامش و راحتی می‌کنم.",
+      "خودم را طبق میل دیگران تغییر می‌دهم تا مرا دوست داشته باشند یا تأییدم کنند.",
+      "احساس می‌کنم به دیگران تعلق خاطر دارم.",
+      "وقتی مشکلی برایم پیش بیاید، سخت تلاش می‌کنم تا خودم مشکل را حل و فصل کنم.",
+      "برای انجام کارهای روزمره یا خسته‌کننده، نظم و پشتکار ندارم.",
+      "اگر با دیگران بجنگم، از من سوءاستفاده می‌کنند یا مرا نادیده می‌گیرند.",
+      "مجبورم از اطرافیانم مراقبت کنم.",
+      "اگر به دیگران اجازه بدهید که به شما زور بگویند یا شما را مسخره کنند، بازندهٔ واقعی شما هستید.",
+      "وقتی از دست دیگران عصبانی هستم، به آن‌ها حمله می‌کنم.",
+      "اگر عصبانی بشوم، اغلب نمی‌توانم جلوی خودم را بگیرم و قشقره راه می‌اندازم.",
+      "مهم‌ترین مسئلهٔ زندگی من این است که نفر اول باشم (مثل مشهورترین، موفق‌ترین، سالم‌ترین و قدرتمندترین).",
+      "نسبت به بعضی چیزها بی‌تفاوتم.",
+      "می‌توانم مشکلاتم را عاقلانه حل کنم؛ بدون اینکه اجازه دهم هیجان‌هایم مرا از پا درآورند.",
+      "چاره‌اندیشی برای موقعیت‌ها کاری عبث و مسخره است.",
+      "به هیچ عنوان نمی‌توانم توقعاتم را کم کنم.",
+      "حمله، بهترین دفاع است.",
+      "نسبت به دیگران، بی‌تفاوت، نامهربان و سنگدل هستم.",
+      "کاملاً بی‌تفاوتم؛ با خودم، هیجان‌هایم یا اطرافیانم هیچ‌گونه ارتباطی ندارم.",
+      "من سرد، بی‌حس و گوش‌بسته نسبت به هیجان‌هایم هستم.",
+      "کارد به استخوانم رسیده است (کاملاً مستأصلم).",
+      "به دیگران اجازه می‌دهم که مرا دست‌کم بگیرند و از من انتقاد کنند.",
+      "در روابط اجتماعی به دیگران متقابلاً اجازه می‌دهم که بر من مسلط شوند.",
+      "احساس می‌کنم از مردم فاصله گرفته‌ام.",
+      "بدون فکر، حرف می‌زنم و دیگران آزرده‌خاطر می‌شوند یا بعد از این کار شرمنده می‌شوم.",
+      "سخت کار می‌کنم یا به ورزش می‌پردازم تا به مشکلات آشفته‌ام فکر نکنم.",
+      "از دست کسانی که تلاش می‌کنند آزادی یا استقلال مرا بگیرند، عصبانی می‌شوم.",
+      "احساس می‌کنم اصلاً وجود ندارم.",
+      "مجبور نیستم به احساسات و نیازهای دیگران توجه کنم؛ هر کاری دلم بخواهد انجام می‌دهم.",
+      "اصلاً نمی‌توانم به مردم اعتماد کنم؛ آدم‌ها بهم تا رنج ندهند مگر این‌که مطابق میل‌شان عمل کنم.",
+      "وقتی عصبانی هستم مطمئنم که هرچه دستم بیاید پرت می‌کنم.",
+      "از دست دیگران خونم به جوش آمده است.",
+      "احساس می‌کنم به دیگران تعلق خاطر دارم.",
+      "خشم زیادی در درون من نهفته است؛ فکر می‌کنم که باید این خشم را رها کنم.",
+      "احساس تنهایی می‌کنم.",
+      "تلاش می‌کنم در هر کاری، بهترین باشم.",
+      "دوست دارم برای فرار از احساس‌هایم، دست به فعالیت‌های آرامش‌بخش یا هیجان‌انگیز بزنم (مثل کار کردن، خوردن، خرید کردن و تماشای تلویزیون).",
+      "تساوی اصلاً وجود ندارد، بنابراین بهتر است که از دیگران برتر باشید.",
+      "وقتی عصبانی هستم، اغلب کنترل را از دست می‌دهم و دیگران را تهدید می‌کنم.",
+      "به جای این که خودم نیازهایم را بیان کنم، به دیگران اجازه می‌دهم آن‌ها را ببرند.",
+      "اگر کسی با من موافق نباشد، پس بر علیه من است.",
+      "برای این که کمتر تحت تأثیر افکار و احساسات آشفته‌ساز قرار بگیرم، باید همیشه دست به دامن دیگران شوم.",
+      "اگر از دست دیگران عصبانی شوم، آدم بدی هستم.",
+      "نمی‌خواهم با مردم ارتباط برقرار کنم.",
+      "آن‌قدر عصبانی‌ام که ممکن است به فردی آسیب برسانم یا کسی را بکشم.",
+      "احساس می‌کنم لیاقت دارم که زندگی با ثبات و آرامی داشته باشم.",
+      "می‌دانم که چه موقع هیجان‌هایم را نشان بدهم و چه موقع دست به این کار نزنم.",
+      "اگر کسی مرا تنها بگذارد یا به حال خود رهایم کند، عصبانی می‌شوم.",
+      "احساس می‌کنم با مردم ارتباط ندارم.",
+      "خودم را وادار به انجام کارهای ناخوشایند نمی‌کنم، حتی اگر بدانم انجام چنین کارهایی به نفع من است.",
+      "تاوان‌شکنی می‌کنم و بعدش پشیمان می‌شوم.",
+      "احساس شرمساری می‌کنم.",
+      "به بیشتر مردم اعتماد دارم.",
+      "اول عمل می‌کنم؛ تا بعدش به کارم فکر کنم.",
+      "خیلی زود حوصله‌ام سر می‌رود و علاقه‌ام را از دست می‌دهم.",
+      "حتی در جمع نیز احساس تنهایی می‌کنم.",
+      "نمی‌توانم به خودم اجازه بدهم که مثل بقیه مردم، دست به فعالیت‌های لذت‌بخش بزنم چون آدم خوبی نیستم.",
+      "خواسته‌هایم را بیان می‌کنم، بدون این که آرامش خودم را از دست بدهم.",
+      "احساس می‌کنم در مقایسه با بیشتر مردم، آدم بهتر و خاصی هستم.",
+      "می‌خواهم از چیزی در زندگی‌ام لذت ببرم؛ این موضوع هیچ اهمیتی برای من ندارد.",
+      "وقتی که دیگران به من می‌گویند که چه احساسی باید داشته باشم یا باید چه رفتاری در پیش بگیرم، عصبانی می‌شوم.",
+      "اگر بر دیگران تسلط پیدا نکنید، آن‌ها بر شما مسلط می‌شوند.",
+      "من سرد، بی‌توجه به احساسات و خواسته‌هایم هستم؛ نه آن‌ها را بروز می‌دهم و نه دست به اعمال تکانشی می‌زنم.",
+      "دوست دارم دیگران را به دلیل حرفی که خودشان به من زده‌اند، وادار کنم.",
+      "قادر به مراقبت از خودم نیستم.",
+      "به دیگران خیلی ایراد می‌گیرم.",
+      "برای رسیدن به اهداف و خواسته‌هایم، تحت فشار دائمی هستم.",
+      "تلاش می‌کنم که مرتکب اشتباه نشوم، چون در غیر این صورت خودم را تحقیر می‌کنم.",
+      "مستحق تنبیه شدن هستم.",
+      "می‌توانم تغییر کنم، یاد بگیرم و پیشرفت کنم.",
+      "می‌خواهم به افکار و احساسات آشفته‌ساز توجه نکنم.",
+      "از دست خودم عصبانی هستم.",
+      "هیچ احساسی ندارم.",
+      "مجبورم در هر کاری که انجام می‌دهم، بهترین باشم.",
+      "برای دستیابی به معیارهای لذت، سلامتی و خوشحالی را فدا کرده‌ام.",
+      "از دیگران توقع زیادی دارم.",
+      "اگر عصبانی بشوم، کنترلم را از دست می‌دهم به گونه‌ای که به دیگران صدمه می‌زنم.",
+      "آدم بدی هستم.",
+      "احساس امنیت می‌کنم.",
+      "احساس می‌کنم دیگران مرا درک می‌کنند، به حرف دل من گوش می‌دهند و تأییدم می‌کنند.",
+      "کنترل تکانه‌هایم غیرممکن است.",
+      "وقتی عصبانی هستم، وسایل دم‌دست را می‌شکنم.",
+      "اگر بر دیگران تسلط پیدا نکنید، آن‌ها به آسانی بر شما مسلط می‌شوند.",
+      "به شیوه‌ای منطقی رفتار می‌کنم؛ حتی زمانی که مایل به انجام این سبک و سیاق نیستم.",
+      "خشم من غیرقابل کنترل است.",
+      "به دیگران زور می‌گویم و آن‌ها را به بند می‌کشم.",
+      "احساس می‌کنم درست دارم افراد را به خاطر کاری که در قبال من انجام داده‌اند، آزار می‌دهم یا به شدت انتقاد می‌کنم.",
+      "احساس می‌کنم دوست دارم افراد را به خاطر کاری که در قبال من انجام داده‌اند، آزار دهم یا به باد انتقاد بگیرم.",
+      "چون می‌دانم چه چیزی «درست» یا «غلط» است، بنابراین سخت در تلاش هستم کار درست را انجام بدهم وگرنه از خودم عیب‌جویی می‌کنم.",
+      "اغلب احساس می‌کنم در دنیا تنها هستم.",
+      "احساس ضعف و درماندگی می‌کنم.",
+      "آدم تنبلی هستم.",
+      "می‌توانم همه کارهایی که افراد مهم زندگی‌ام انجام می‌دهند، تحمل کنم.",
+      "احساس می‌کنم از من سوءاستفاده شده یا با من ناعادلانه رفتار کرده‌اند.",
+      "اگر به انجام کاری تمایل پیدا کنم، حتماً آن را انجام می‌دهم.",
+      "احساس می‌کنم هیچ‌کس مرا آدم حساب نمی‌کند.",
+      "دیگران را تحقیر می‌کنم.",
+      "احساس خوشبختی می‌کنم.",
+      "احساس می‌کنم من باید مطیع همان قواعدی باشم که دیگران مجبور به رعایت آن‌ها هستند.",
+      "زندگی من در حال حاضر پیرامون این مسئله می‌چرخد که چه کارهایی را انجام داده‌ام و چه کارهایی را باید خوب انجام بدهم.",
+      "خودم را تشویق می‌کنم تا مسئولیت‌پذیرتر از بیشتر مردم باشم.",
+      "وقتی احساس کنم غیرمنصفانه به من ایراد گرفته شده یا از من سوءاستفاده شده یا با من بدرفتاری می‌کنند، با این حال می‌توانم حقم را بگیرم.",
+      "وقتی اتفاق ناگواری برای من رخ بدهد، لیاقت همدردی دیگران را ندارم.",
+      "احساس می‌کنم هیچ‌کس مرا دوست ندارد.",
+      "احساس می‌کنم در واقع آدم خوبی هستم.",
+      "اگر لازم باشد برای دستیابی به ارزش‌هایم، کارهای تکراری و کسل‌کننده را انجام می‌دهم.",
+      "احساس شور طبیعی و خودانگیختگی می‌کنم.",
+      "می‌توانم چنان عصبانی شوم که فردی را بکشم.",
+      "از هویت خودم و کاری که برای شادکامی خودم انجام می‌دهم، احساس خوبی دارم.",
+    ];
+
+    const getQuestionText = (num) => QUESTIONS[num - 1] || `سوال شماره ${num}`;
+
+    const OPTION_LABELS = ["هیچ وقت", "به ندرت", "گاهی", "اغلب", "مدام", "همیشه"];
+
+    const CATEGORIES = [
+      { label: "ذهنیت کودک آسیب‌پذیر", count: 9, numbers: [119, 111, 105, 71, 67, 50, 36, 6, 4] },
+      { label: "کودک عصبانی", count: 10, numbers: [109, 103, 79, 76, 63, 56, 49, 47, 42, 22] },
+      { label: "کودک غضبناک", count: 10, numbers: [123, 101, 98, 92, 60, 54, 46, 26, 25, 14] },
+      { label: "کودک تکانشی", count: 9, numbers: [110, 97, 78, 69, 61, 40, 35, 15, 12] },
+      { label: "کودک بی‌انضباط", count: 6, numbers: [107, 70, 65, 30, 21, 13] },
+      { label: "کودک شاد", count: 10, numbers: [122, 113, 96, 95, 68, 61, 48, 19, 17, 2] },
+      { label: "تسلیم‌شده مطیع", count: 7, numbers: [108, 100, 55, 38, 37, 18, 8] },
+      { label: "محافظ بی‌تفاوت", count: 9, numbers: [88, 75, 64, 59, 43, 39, 34, 33, 28] },
+      { label: "ذهنیت خود آرام‌بخش", count: 4, numbers: [86, 57, 52, 41] },
+      { label: "ذهنیت خود بزرگ‌منش", count: 10, numbers: [114, 91, 89, 81, 74, 44, 31, 27, 11, 10] },
+      { label: "ذهنیت زورگوی تهاجمی", count: 9, numbers: [112, 102, 99, 93, 77, 53, 32, 24, 1] },
+      { label: "والد تنبیه‌گر", count: 10, numbers: [118, 94, 87, 84, 72, 58, 16, 9, 5, 3] },
+      { label: "والد پرتوقع", count: 10, numbers: [116, 115, 104, 90, 83, 82, 51, 45, 23, 7] },
+      { label: "بزرگسال سالم", count: 10, numbers: [124, 121, 120, 117, 85, 80, 73, 62, 29, 20] },
+    ];
+
+    const computeCategoryScores = (answers) =>
+      CATEGORIES.map((category) => {
+        const sum = category.numbers.reduce((total, num) => {
+          const value = answers[num];
+          return total + (typeof value === "number" ? value : 0);
+        }, 0);
+        return { label: category.label, count: category.count, numbers: [...category.numbers], sum };
+      });
+
+    const buildCategoryRowHTML = (category, record) => {
+      const orderedNumbers = [...category.numbers].sort((a, b) => a - b);
+      const numbersHTML = orderedNumbers
+        .map((num) => {
+          const value = record.answers && typeof record.answers[num] === "number" ? record.answers[num] : "—";
+          return `
+            <div class="number-cell">
+              <span class="answer">${value}</span>
+              <span class="number">${num}</span>
+            </div>
+          `;
+        })
+        .join("");
+
+      const scoreEntry = record.scores?.find((s) => s.label === category.label);
+      const sum =
+        scoreEntry?.sum ??
+        orderedNumbers.reduce((total, num) => total + (record.answers && record.answers[num] ? record.answers[num] : 0), 0);
+
+      return `
+        <div class="result-row">
+          <div class="category-label">${category.label} (${category.count}) — جمع: ${sum}</div>
+          <div class="numbers">
+            ${numbersHTML}
+          </div>
+        </div>
+      `;
+    };
+
+    const showTestResult = (record) => {
+      if (!record) return;
+
+      const rowsHTML = CATEGORIES.map((category) => buildCategoryRowHTML(category, record)).join("");
+
+      const popupHTML = `
+        <!DOCTYPE html>
+        <html lang="fa" dir="rtl">
+          <head>
+            <meta charset="utf-8" />
+            <title>نقشه ذهنیت‌های فعال</title>
+            <style>
+              body {
+                margin: 0;
+                padding: 32px 16px 48px;
+                font-family: Vazirmatn, "IRANSans", "Segoe UI", Tahoma, sans-serif;
+                background: #f4f4f4;
+                color: #111;
+                line-height: 1.6;
+              }
+              .results-page {
+                width: min(960px, 100%);
+                margin: 0 auto;
+                display: flex;
+                flex-direction: column;
+                gap: 24px;
+              }
+              .results-header {
+                text-align: center;
+              }
+              .results-header h2 {
+                margin: 0;
+                font-size: 1.8rem;
+              }
+              .results-list {
+                display: flex;
+                flex-direction: column;
+                gap: 18px;
+              }
+              .result-row {
+                background: #fff;
+                border-radius: 16px;
+                border: 1px solid #d7d7d7;
+                padding: 18px 24px;
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 24px;
+                flex-wrap: wrap;
+              }
+              .category-label {
+                font-weight: 700;
+                min-width: 220px;
+              }
+              .numbers {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px 18px;
+                flex: 1;
+              }
+              .number-cell {
+                min-width: 54px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+              }
+              .answer {
+                font-weight: 600;
+                font-size: 1rem;
+              }
+              .number {
+                font-size: 0.9rem;
+                color: #555;
+              }
+              @media (max-width: 640px) {
+                .result-row {
+                  flex-direction: column;
+                }
+                .category-label {
+                  min-width: auto;
+                }
+                .numbers {
+                  width: 100%;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="results-page">
+              <div class="results-header">
+                <h2>نقشه ذهنیت‌های فعال</h2>
+              </div>
+              <div class="results-list">
+                ${rowsHTML}
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      const popupWindow = window.open("", "_blank");
+      if (!popupWindow) {
+        alert("لطفاً پاپ‌آپ مرورگر را فعال کنید تا نتایج نمایش داده شود.");
+        return;
+      }
+      popupWindow.document.open();
+      popupWindow.document.write(popupHTML);
+      popupWindow.document.close();
+    };
+
+    // ساخت لیست سوالات
+    submitBtn.disabled = true;
+
+    for (let number = 1; number <= TOTAL_NUMBERS; number++) {
+      const entry = document.createElement("div");
+      entry.className = "entry";
+      entry.dataset.number = number;
+
+      const questionNumber = document.createElement("div");
+      questionNumber.className = "question-number";
+      questionNumber.textContent = `سوال ${number}`;
+
+      const questionText = document.createElement("div");
+      questionText.className = "question-text";
+      questionText.textContent = getQuestionText(number);
+
+      const optionsGroup = document.createElement("div");
+      optionsGroup.className = "options-group";
+
+      OPTION_LABELS.forEach((label, index) => {
+        const optionBtn = document.createElement("button");
+        optionBtn.type = "button";
+        optionBtn.className = "option-btn";
+        optionBtn.textContent = label;
+        optionBtn.dataset.value = index + 1;
+
+        optionBtn.addEventListener("click", () => {
+          optionsGroup.querySelectorAll(".option-btn").forEach((btn) => btn.classList.remove("selected"));
+          optionBtn.classList.add("selected");
+          entry.classList.remove("error");
+          entry.dataset.selectedValue = index + 1;
+          updateProgress();
+        });
+
+        optionsGroup.appendChild(optionBtn);
+      });
+
+      entry.appendChild(questionNumber);
+      entry.appendChild(questionText);
+      entry.appendChild(optionsGroup);
+      questionsContainer.appendChild(entry);
+      questionEntries.push(entry);
+    }
+
+    const updateProgress = () => {
+      const filled = questionEntries.filter((entry) => entry.dataset.selectedValue).length;
+      const percentage = Math.round((filled / TOTAL_NUMBERS) * 100);
+      progressValue.textContent = `${filled} / ${TOTAL_NUMBERS}`;
+      progressFill.style.width = `${percentage}%`;
+      progressStatus.textContent = filled === TOTAL_NUMBERS ? "آماده‌ی ثبت" : "در حال تکمیل";
+      submitBtn.disabled = false;
+    };
+
+    updateProgress();
+
+    const resetFormEntries = () => {
+      questionEntries.forEach((entry) => {
+        delete entry.dataset.selectedValue;
+        entry.classList.remove("error");
+        entry.querySelectorAll(".option-btn").forEach((btn) => btn.classList.remove("selected"));
+      });
+      updateProgress();
+    };
+
+    // درگاه کد
+    codeStartBtn.addEventListener("click", async () => {
+      const inputCode = codeInput.value.trim().toUpperCase();
+      codeError.textContent = "";
+
+      if (!inputCode) {
+        codeError.textContent = "لطفاً کد را وارد کنید.";
+        return;
+      }
+
+      try {
+        const codeObj = await getCodeByValue(inputCode);
+        if (!codeObj) {
+          codeError.textContent = "این کد در سیستم ثبت نشده است.";
+          return;
+        }
+
+        if (codeObj.used) {
+          codeError.textContent = "این کد قبلاً استفاده شده است.";
+          return;
+        }
+
+        activeCode = codeObj;
+        resetFormEntries();
+        codeGate.hidden = true;
+        formView.hidden = false;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (err) {
+        console.error(err);
+        codeError.textContent = "خطا در ارتباط با سرور. دوباره تلاش کنید.";
+      }
+    });
+
+    // ثبت تست
+    submitBtn.addEventListener("click", async () => {
+      const answers = {};
+      let hasEmpty = false;
+
+      questionEntries.forEach((entry) => {
+        const number = Number(entry.dataset.number);
+        const value = entry.dataset.selectedValue;
+
+        if (!value) {
+          entry.classList.add("error");
+          hasEmpty = true;
+        } else {
+          entry.classList.remove("error");
+          answers[number] = Number(value);
+        }
+      });
+
+      //if (hasEmpty) {
+        //alert("لطفاً برای همه سوالات یک گزینه انتخاب کنید.");
+        //return;
+      //}
+
+      const scores = computeCategoryScores(answers);
+      const testPayload = {
+        code: activeCode ? activeCode.code : null,
+        answers,
+        scores,
+      };
+
+      try {
+        await testsCollection.add({
+          ...testPayload,
+          createdAt: serverTimestamp(),
+        });
+
+        if (activeCode) {
+          await markCodeAsUsed(activeCode);
+        }
+
+        if (isAdminAuthenticated) {
+          await refreshAdminData();
+        }
+
+        alert("تست با موفقیت ثبت شد. متشکریم 🙏");
+        formView.hidden = true;
+        activeCode = null;
+        codeInput.value = "";
+        codeGate.hidden = false;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (err) {
+        console.error(err);
+        alert("خطا در ثبت تست. لطفاً دوباره تلاش کنید.");
+      }
+    });
+
+    // پنل ادمین
+    const randomCode = () => {
+      const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+      let out = "";
+      for (let i = 0; i < 8; i++) {
+        out += chars[Math.floor(Math.random() * chars.length)];
+      }
+      return out;
+    };
+
+    generateSingleCodeBtn.addEventListener("click", async () => {
+      if (!isAdminAuthenticated) return;
+      singleCodeFeedback.textContent = "";
+      try {
+        const record = await insertCodeRecordAsync(randomCode(), singleCodeClientInput.value);
+        await refreshAdminData();
+        singleCodeFeedback.style.color = "#15803d";
+        singleCodeFeedback.textContent = `کد جدید برای ${record.clientName || "بدون نام"}: ${record.code}`;
+      } catch (err) {
+        singleCodeFeedback.style.color = "#dc2626";
+        singleCodeFeedback.textContent = err.message;
+      }
+    });
+
+    generateCodesBtn.addEventListener("click", async () => {
+      if (!isAdminAuthenticated) return;
+      generatedCodesList.textContent = "";
+      try {
+        const count = Number(newCodeCountInput.value || 0);
+        if (!count || count < 1) {
+          throw new Error("تعداد کد معتبر نیست.");
+        }
+        if (count > 100) {
+          throw new Error("حداکثر می‌توانید ۱۰۰ کد در یک مرحله بسازید.");
+        }
+        const newCodes = await generateRandomCodesAsync(count);
+        await refreshAdminData();
+        generatedCodesList.style.color = "#15803d";
+        generatedCodesList.textContent = `کدهای جدید: ${newCodes.map((c) => c.code).join(" ، ")}`;
+      } catch (err) {
+        generatedCodesList.style.color = "#dc2626";
+        generatedCodesList.textContent = err.message;
+      }
+    });
+
+    addManualCodeBtn.addEventListener("click", async () => {
+      if (!isAdminAuthenticated) return;
+      manualCodeFeedback.textContent = "";
+      try {
+        const record = await insertCodeRecordAsync(manualCodeInput.value, manualCodeClientInput.value);
+        await refreshAdminData();
+        manualCodeFeedback.style.color = "#15803d";
+        manualCodeFeedback.textContent = `کد ${record.code} برای ${record.clientName || "بدون نام"} با موفقیت ثبت شد.`;
+        manualCodeInput.value = "";
+        manualCodeClientInput.value = "";
+      } catch (err) {
+        manualCodeFeedback.style.color = "#dc2626";
+        manualCodeFeedback.textContent = err.message;
+      }
+    });
+
+    const renderCodesTable = () => {
+      if (!codes.length) {
+        codesTable.innerHTML = "<p>هنوز هیچ کدی ساخته نشده است.</p>";
+        return;
+      }
+
+      const rows = codes
+        .map((c) => {
+          const status = c.used ? "استفاده شده" : "استفاده نشده";
+          const created = formatTimestamp(c.createdAt);
+          const used = formatTimestamp(c.usedAt);
+          const clientName = c.clientName || "—";
+          return `
+            <tr>
+              <td style="direction:ltr; text-align:right; white-space:nowrap;">${c.code}</td>
+              <td>${clientName}</td>
+              <td>${status}</td>
+              <td>${created}</td>
+              <td>${used}</td>
+              <td style="display:flex; gap:6px; justify-content:center;">
+                <button
+                  type="button"
+                  data-code="${c.code}"
+                  class="admin-edit-code-btn"
+                  style="
+                    padding:4px 10px;
+                    border-radius: 6px;
+                    border: none;
+                    background:#2563eb;
+                    color:#fff;
+                    font-size:0.8rem;
+                    cursor:pointer;
+                  "
+                >
+                  ویرایش
+                </button>
+                <button
+                  type="button"
+                  data-code="${c.code}"
+                  class="admin-delete-code-btn"
+                  style="
+                    padding:4px 10px;
+                    border-radius: 6px;
+                    border: none;
+                    background:#b91c1c;
+                    color:#fff;
+                    font-size:0.8rem;
+                    cursor:pointer;
+                  "
+                >
+                  حذف
+                </button>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      codesTable.innerHTML = `
+        <table style="width:100%; border-collapse: collapse; direction: rtl; text-align:right;">
+          <thead>
+            <tr>
+              <th style="border-bottom:1px solid #ddd; padding:6px;">کد</th>
+              <th style="border-bottom:1px solid #ddd; padding:6px;">نام مراجع</th>
+              <th style="border-bottom:1px solid #ddd; padding:6px;">وضعیت</th>
+              <th style="border-bottom:1px solid #ddd; padding:6px;">تاریخ ساخت</th>
+              <th style="border-bottom:1px solid #ddd; padding:6px;">تاریخ استفاده</th>
+              <th style="border-bottom:1px solid #ddd; padding:6px;">اقدامات</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      // ویرایش نام مراجع
+      codesTable.querySelectorAll(".admin-edit-code-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const code = btn.getAttribute("data-code");
+          const rec = codes.find((c) => c.code === code);
+          if (!rec) return;
+          const currentName = rec.clientName || "";
+          const newName = prompt("نام مراجع برای کد " + code, currentName);
+          if (newName === null) return;
+          try {
+            if (rec.id) {
+              await codesCollection.doc(rec.id).update({ clientName: newName.trim() });
+            }
+            await fetchCodes();
+            renderCodesTable();
+            renderTestsTable();
+          } catch (err) {
+            alert("خطا در ویرایش نام. لطفاً دوباره امتحان کنید.");
+          }
+        });
+      });
+
+      // اتصال رویداد حذف کد
+      codesTable.querySelectorAll(".admin-delete-code-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const code = btn.getAttribute("data-code");
+          if (!code) return;
+          const confirmed = confirm(
+            `آیا از حذف کد ${code} و تمام تست‌های مرتبط با آن مطمئن هستید؟ این کار قابل بازگشت نیست.`
+          );
+          if (!confirmed) return;
+          try {
+            await deleteCodeAndTests(code);
+            await refreshAdminData();
+          } catch (err) {
+            alert("خطا در حذف کد. لطفاً دوباره تلاش کنید.");
+          }
+        });
+      });
+    };
+
+    const renderTestsTable = () => {
+      if (!tests.length) {
+        testsTable.innerHTML = "<p>هنوز هیچ تستی ثبت نشده است.</p>";
+        return;
+      }
+
+      const rows = tests
+        .map((t) => {
+          const created = formatTimestamp(t.createdAt);
+          const code = t.code || "-";
+          const codeRec = codes.find((c) => c.code === code);
+          const clientName = codeRec && codeRec.clientName ? codeRec.clientName : "-";
+          const summary = Array.isArray(t.scores)
+            ? t.scores.map((s) => `${s.label.replace("ذهنیت ", "").slice(0, 12)}: ${s.sum}`).join(" | ")
+            : "-";
+          return `
+            <tr>
+              <td style="direction:ltr; text-align:left;">${code}</td>
+              <td>${clientName}</td>
+              <td>${created}</td>
+              <td>${summary}</td>
+              <td style="text-align:center;">
+                <button
+                  type="button"
+                  class="admin-view-test-btn"
+                  data-test-id="${t.id}"
+                  style="
+                    padding:4px 12px;
+                    border-radius:6px;
+                    border:none;
+                    background:#2563eb;
+                    color:#fff;
+                    font-size:0.85rem;
+                    cursor:pointer;
+                  "
+                >
+                  نمایش تست
+                </button>
+              </td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      testsTable.innerHTML = `
+        <table style="width:100%; border-collapse: collapse; direction: rtl; text-align:right;">
+          <thead>
+            <tr>
+              <th style="border-bottom:1px solid #ddd; padding:6px;">کد</th>
+              <th style="border-bottom:1px solid #ddd; padding:6px;">نام مراجع</th>
+              <th style="border-bottom:1px solid #ddd; padding:6px;">تاریخ تست</th>
+              <th style="border-bottom:1px solid #ddd; padding:6px;">خلاصه امتیاز ذهنیت‌ها</th>
+              <th style="border-bottom:1px solid #ddd; padding:6px;">اقدامات</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+
+      testsTable.querySelectorAll(".admin-view-test-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const testId = btn.getAttribute("data-test-id");
+          const record = tests.find((t) => t.id === testId);
+          if (!record) return;
+          showTestResult(record);
+        });
+      });
+    };
+
+    adminLoginBtn.addEventListener("click", async () => {
+      const pwd = adminPasswordInput.value.trim();
+      adminLoginError.textContent = "";
+
+      if (!pwd) {
+        adminLoginError.textContent = "لطفاً رمز عبور را وارد کنید.";
+        return;
+      }
+
+      if (pwd !== ADMIN_PASSWORD) {
+        adminLoginError.textContent = "رمز عبور اشتباه است.";
+        return;
+      }
+
+      isAdminAuthenticated = true;
+      adminLoginBox.hidden = true;
+      if (adminContent) {
+        adminContent.hidden = false;
+        adminContent.style.display = "flex";
+      }
+      await refreshAdminData();
+    });
+
+    const initViewByLocation = () => {
+      const hash = window.location.hash.toLowerCase();
+      if (hash === "#admin") {
+        codeGate.hidden = true;
+        formView.hidden = true;
+        adminView.hidden = false;
+        // همیشه ابتدا فقط فرم ورود نمایش داده شود
+        isAdminAuthenticated = false;
+        adminLoginBox.hidden = false;
+        if (adminContent) {
+          adminContent.hidden = true;
+          adminContent.style.display = "none";
+        }
+      } else {
+        adminView.hidden = true;
+        formView.hidden = true;
+        codeGate.hidden = false;
+        isAdminAuthenticated = false;
+        if (adminContent) {
+          adminContent.hidden = true;
+          adminContent.style.display = "none";
+        }
+      }
+    };
+
+    window.addEventListener("hashchange", initViewByLocation);
+    initViewByLocation();
+
+  </script>
+</body>
+</html>
+
+
